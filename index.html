@@ -2,7 +2,7 @@
 <html class="dark" lang="en">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <title>ApexCommerce — Live E-Commerce & Sales Telemetry</title>
   
   <!-- Apple & Mobile Web App Meta -->
@@ -62,7 +62,8 @@
       font-family: 'Inter', -apple-system, sans-serif;
       font-feature-settings: "cv05" 1;
       -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
+      margin: 0;
+      padding: 0;
     }
     .tnum {
       font-feature-settings: "tnum" 1, "cv05" 1;
@@ -71,7 +72,6 @@
     /* Native smooth momentum scrolling on iOS */
     .touch-scroll {
       -webkit-overflow-scrolling: touch;
-      overscroll-behavior-y: contain;
     }
     
     /* Subtle scrollbar */
@@ -85,6 +85,36 @@
     ::-webkit-scrollbar-thumb {
       background: #1f293d;
       border-radius: 9999px;
+    }
+    
+    /* Mobile drawer strict hit-testing & transitions */
+    .drawer-backdrop {
+      transition: opacity 0.25s ease, visibility 0.25s;
+    }
+    .drawer-panel {
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.28s;
+    }
+    @media (max-width: 1023px) {
+      #sidebarDrawer:not(.is-open) {
+        transform: translateX(-100%) !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+      }
+      #sidebarDrawer.is-open {
+        transform: translateX(0) !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+      }
+      #drawerBackdrop:not(.is-open) {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+      }
+      #drawerBackdrop.is-open {
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+      }
     }
     
     /* Animation for new row arrival */
@@ -104,24 +134,16 @@
     .toast-anim {
       animation: toastSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
-
-    /* Off-canvas mobile drawer animation */
-    .drawer-backdrop {
-      transition: opacity 0.3s ease;
-    }
-    .drawer-panel {
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
   </style>
 </head>
 
-<body class="min-h-screen bg-[#0a0e17] text-[#f8fafc] flex antialiased selection:bg-[#6366f1]/30 overflow-x-hidden">
+<body class="min-h-screen bg-[#0a0e17] text-[#f8fafc] flex flex-col lg:flex-row antialiased selection:bg-[#6366f1]/30 lg:h-screen lg:overflow-hidden">
 
-  <!-- ==================== MOBILE DRAWER BACKDROP & OVERLAY ==================== -->
-  <div id="drawerBackdrop" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 lg:hidden hidden drawer-backdrop opacity-0" onclick="toggleMobileDrawer(false)"></div>
+  <!-- ==================== MOBILE DRAWER BACKDROP (Zero pointer-events when closed) ==================== -->
+  <div id="drawerBackdrop" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 lg:hidden drawer-backdrop" onclick="toggleMobileDrawer(false)"></div>
 
-  <!-- ==================== SIDEBAR (DESKTOP STICKY & MOBILE SLIDE-OUT) ==================== -->
-  <aside id="sidebarDrawer" class="w-72 sm:w-80 lg:w-64 bg-[#0d121e] border-r border-[#1f293d] flex flex-col justify-between shrink-0 select-none z-50 fixed inset-y-0 left-0 -translate-x-full lg:translate-x-0 lg:static lg:h-screen lg:sticky lg:top-0 drawer-panel">
+  <!-- ==================== SIDEBAR DRAWER (Hidden & Non-interactive on mobile when closed) ==================== -->
+  <aside id="sidebarDrawer" class="w-72 sm:w-80 lg:w-64 bg-[#0d121e] border-r border-[#1f293d] flex flex-col justify-between shrink-0 select-none z-50 fixed inset-y-0 left-0 lg:static lg:h-screen lg:sticky lg:top-0 drawer-panel">
     <div class="flex flex-col h-full overflow-y-auto touch-scroll pt-[env(safe-area-inset-top)]">
       
       <!-- Brand Logo Header -->
@@ -141,7 +163,7 @@
           </div>
         </div>
         <!-- Close button on mobile -->
-        <button onclick="toggleMobileDrawer(false)" class="lg:hidden p-1.5 rounded-md text-[#94a3b8] hover:text-white hover:bg-[#182234]">
+        <button onclick="toggleMobileDrawer(false)" class="lg:hidden p-2 rounded-md text-[#94a3b8] hover:text-white hover:bg-[#182234]">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
@@ -150,7 +172,7 @@
       <nav class="p-3 space-y-1 flex-1">
         <div class="px-3 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[#475569]">Telemetry</div>
         
-        <!-- Active Nav: Overview -->
+        <!-- Overview -->
         <a href="#overview" onclick="toggleMobileDrawer(false)" class="flex items-center justify-between px-3 py-2.5 rounded-md bg-[#6366f1]/15 text-[#f8fafc] border border-[#6366f1]/30 transition group">
           <div class="flex items-center gap-3">
             <svg class="w-4 h-4 text-[#818cf8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -161,7 +183,7 @@
           <span class="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse"></span>
         </a>
 
-        <!-- Orders Nav -->
+        <!-- Orders -->
         <a href="#ordersSection" onclick="toggleMobileDrawer(false)" class="flex items-center justify-between px-3 py-2.5 rounded-md text-[#94a3b8] hover:text-[#f8fafc] hover:bg-[#182234] transition group">
           <div class="flex items-center gap-3">
             <svg class="w-4 h-4 text-[#94a3b8] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -172,7 +194,7 @@
           <span id="sidebarOrderCount" class="text-[11px] font-semibold bg-[#182234] text-[#94a3b8] border border-[#1f293d] px-1.5 py-0.5 rounded-full tnum">...</span>
         </a>
 
-        <!-- Products Nav -->
+        <!-- Products -->
         <a href="#productsSection" onclick="toggleMobileDrawer(false)" class="flex items-center justify-between px-3 py-2.5 rounded-md text-[#94a3b8] hover:text-[#f8fafc] hover:bg-[#182234] transition group">
           <div class="flex items-center gap-3">
             <svg class="w-4 h-4 text-[#94a3b8] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -183,7 +205,7 @@
           <span id="sidebarProductCount" class="text-[10px] text-[#10b981] font-semibold tnum">50 SKUs</span>
         </a>
 
-        <!-- Data Sources Info -->
+        <!-- Data Feeds -->
         <div class="px-3 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-[#475569]">Data Feeds</div>
 
         <div class="px-3 py-2 space-y-2 text-xs bg-[#121826]/60 rounded-md border border-[#1f293d]/50">
@@ -211,7 +233,7 @@
         </div>
       </nav>
 
-      <!-- Bottom User Card -->
+      <!-- User Card -->
       <div class="p-3 border-t border-[#1f293d] pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
         <div class="bg-[#121826] border border-[#1f293d] rounded-lg p-2.5 flex items-center justify-between">
           <div class="flex items-center gap-2.5">
@@ -232,10 +254,10 @@
     </div>
   </aside>
 
-  <!-- ==================== MAIN VIEWPORT ==================== -->
-  <main class="flex-1 flex flex-col min-w-0 bg-[#0a0e17] overflow-y-auto touch-scroll pb-24 lg:pb-8">
+  <!-- ==================== MAIN VIEWPORT (Natural window scroll on mobile, independent on desktop) ==================== -->
+  <main class="flex-1 w-full min-w-0 bg-[#0a0e17] pb-28 lg:pb-8 lg:overflow-y-auto touch-scroll">
 
-    <!-- Top Action Bar (iOS Responsive Header) -->
+    <!-- Top Action Bar -->
     <header class="h-14 sm:h-16 px-3.5 sm:px-6 border-b border-[#1f293d] bg-[#0d121e]/90 backdrop-blur sticky top-0 z-20 flex items-center justify-between gap-2.5 pt-[env(safe-area-inset-top)]">
       
       <!-- Mobile Hamburger Button & Brand -->
@@ -251,7 +273,7 @@
         </div>
       </div>
 
-      <!-- Search Box (Expands smoothly on desktop, compact on mobile) -->
+      <!-- Search Box -->
       <div class="flex items-center gap-2 flex-1 max-w-xs sm:max-w-md">
         <div class="relative w-full">
           <span class="absolute inset-y-0 left-0 pl-2.5 sm:pl-3 flex items-center pointer-events-none text-[#475569]">
@@ -655,7 +677,7 @@
 
   </nav>
 
-  <!-- ==================== TOAST NOTIFICATION CONTAINER (iOS SAFE) ==================== -->
+  <!-- ==================== TOAST NOTIFICATION CONTAINER (pointer-events: none) ==================== -->
   <div id="toastContainer" class="fixed bottom-20 lg:bottom-5 right-3.5 sm:right-5 z-50 flex flex-col gap-2 max-w-xs sm:max-w-sm pointer-events-none"></div>
 
   <!-- ==================== JAVASCRIPT LOGIC ==================== -->
@@ -667,13 +689,13 @@
       if (!drawer || !backdrop) return;
 
       if (open) {
-        backdrop.classList.remove('hidden');
-        setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
-        drawer.classList.remove('-translate-x-full');
+        drawer.classList.add('is-open');
+        backdrop.classList.add('is-open');
+        document.body.classList.add('overflow-hidden');
       } else {
-        backdrop.classList.add('opacity-0');
-        drawer.classList.add('-translate-x-full');
-        setTimeout(() => backdrop.classList.add('hidden'), 300);
+        drawer.classList.remove('is-open');
+        backdrop.classList.remove('is-open');
+        document.body.classList.remove('overflow-hidden');
       }
     }
 
@@ -1041,7 +1063,7 @@
       if (endNode) endNode.setAttribute('cy', yEnd);
     }
 
-    // --- 5. TOAST NOTIFICATIONS (MOBILE COMPACT) ---
+    // --- 5. TOAST NOTIFICATIONS (Safe & non-blocking) ---
     function showToast(title, message, type = 'success') {
       const container = document.getElementById('toastContainer');
       if (!container) return;
